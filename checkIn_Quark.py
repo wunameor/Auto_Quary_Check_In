@@ -117,9 +117,16 @@ class Quark:
         growth_info = self.get_growth_info()
         if growth_info:
             log += (
-                f" {'88VIP' if growth_info['88VIP'] else '普通用户'} {self.param.get('user')}\n"
+                is_vip = False
+                if isinstance(growth_info, dict):
+                    is_vip = growth_info.get('88VIP', False)
+
+                msg = f"{'88VIP' if is_vip else '普通用户'} {self.param.get('user')}\n"
+
                 f"💾 网盘总容量：{self.convert_bytes(growth_info['total_capacity'])}，"
                 f"签到累计容量：")
+                print("growth_info raw:", growth_info)
+
             if "sign_reward" in growth_info['cap_composition']:
                 log += f"{self.convert_bytes(growth_info['cap_composition']['sign_reward'])}\n"
             else:
