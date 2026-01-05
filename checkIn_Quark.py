@@ -29,6 +29,7 @@ class Quark:
 
         if not url:
             print(f"❌ [{user}] 未提供签到 URL，跳过")
+            self.param["_skip"] = True
             return
 
         try:
@@ -117,10 +118,13 @@ def main():
     users = parse_env()
     print(f"✅ 检测到共 {len(users)} 个夸克账号")
 
+    skipped_users = []
     for idx, user_data in enumerate(users, start=1):
         print(f"\n👉 开始处理第 {idx} 个账号：{user_data.get('user')}")
         try:
             Quark(user_data).do_sign()
+            if user_data.get("_skip"):
+                skipped_users.append(user_data.get("user", "未知用户"))
         except Exception as e:
             # 兜底保护：任何异常都不影响其他账号 & 不影响 Actions
             print(f"❌ [{user_data.get('user')}] 发生未捕获异常: {e}")
@@ -128,6 +132,10 @@ def main():
         time.sleep(2)
 
     print("\n---------- 夸克网盘签到结束 ----------")
+
+    if skipped_users:
+        users_str = ", ".join(skipped_users)
+        raise Exception(f"❌ 以下账号签到被跳过，请检查 COOKIE_QUARK / URL：{users_str}")
 
 
 if __name__ == "__main__":
