@@ -13,6 +13,7 @@ import time
 import requests
 
 
+
 class Quark:
     def __init__(self, param: dict):
         self.param = param
@@ -70,46 +71,32 @@ class Quark:
 
 
 def parse_env():
-    """
-    解析 COOKIE_QUARK 环境变量
-    支持：
-    - 单账号
-    - 多账号（&& 分隔）
-    """
-    env = os.getenv("COOKIE_QUARK")
-    if not env:
+    import re
+
+    raw = os.getenv("COOKIE_QUARK")
+    if not raw:
         print("❌ 未检测到 COOKIE_QUARK 环境变量")
         return []
 
-    accounts = []
-    parts = env.split("&&")
+    users = []
 
-    for part in parts:
-        part = part.strip()
-        if not part:
-            continue
+    # ✅ 用“空行（正则）”切账号，兼容 GitHub Secrets
+    blocks = re.split(r'\n\s*\n', raw.strip())
 
+    for block in blocks:
         param = {}
-        if "url=" in part:
-            # url=xxx; kps=xxx; sign=xxx
-            for seg in part.split(";"):
-                if "=" in seg:
-                    k, v = seg.split("=", 1)
-                    param[k.strip()] = v.strip()
-        else:
-            # 兼容旧格式：kps=xxx; sign=xxx
-            for seg in part.split(";"):
-                if "=" in seg:
-                    k, v = seg.split("=", 1)
-                    param[k.strip()] = v.strip()
+        for line in block.splitlines():
+            line = line.strip()
+            if not line or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            param[k.strip()] = v.strip()
 
-        # user 字段可选
-        if "user" not in param:
-            param["user"] = f"账号{len(accounts)+1}"
+        if param:
+            param.setdefault("user", f"账号{len(users)+1}")
+            users.append(param)
 
-        accounts.append(param)
-
-    return accounts
+    return users
 
 
 def main():
