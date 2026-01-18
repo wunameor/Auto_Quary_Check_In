@@ -156,6 +156,12 @@ def main():
             print(f"❌ [{user}] {reason}")
             failed.append((user, reason))
             continue
+            
+        if not isinstance(data, dict):
+            reason = f"info 接口返回异常 data={data}"
+            print(f"❌ [{user}] {reason}")
+            failed.append((user, reason))
+            continue
 
         # 2) 判断是否已签到（按常见字段容错）
         cap_sign = data.get("cap_sign") or {}
