@@ -7,6 +7,8 @@ import time
 import json
 import requests
 from urllib.parse import urlparse, parse_qs
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 INFO_URL = "https://drive-m.quark.cn/1/clouddrive/capacity/growth/info"
 SIGN_URL = "https://drive-m.quark.cn/1/clouddrive/capacity/growth/sign"
