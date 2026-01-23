@@ -1,15 +1,19 @@
 name: Quark签到
 
 on:
+  push:               # <--- 新增：监听代码提交事件
+    branches: [ main ] # (可选) 仅在推送到 main 分支时触发，防止开发分支频繁运行
   schedule:
-    - cron: '0 1 * * *'   # 北京时间 09:00 (UTC+8 -> UTC+1)
-    #- cron: '0 5 * * *'   # 北京时间 13:00 (UTC+8 -> UTC+5)
+    - cron: '0 1 * * *'   # 北京时间 09:00
+    #- cron: '0 5 * * *'   # 北京时间 13:00
   workflow_dispatch:      # 允许手动触发
 
 jobs:
   check-if-already-signed:
     runs-on: ubuntu-latest
     outputs:
+      # 注意：你原本的逻辑中，skip=true 代表“继续执行”，skip=false 代表“跳过”。
+      # 变量名有些反直觉，但我保留了你的原逻辑以防出错。
       skip: ${{ steps.check.outputs.skip }}
     steps:
       - name: 检出代码
@@ -27,6 +31,14 @@ jobs:
         run: |
           current_date=$(TZ='Asia/Shanghai' date '+%Y-%m-%d')
           echo "当前北京时间: $current_date"
+          
+          # 如果是 push (commit) 触发，是否强制运行？
+          # 如果你想即使签到过也强制运行调试，取消下面几行的注释：
+          # if [ "${{ github.event_name }}" == "push" ]; then
+          #   echo "监测到代码提交，强制执行签到脚本以供测试。"
+          #   echo "skip=true" >> "$GITHUB_OUTPUT"
+          #   exit 0
+          # fi
 
           if [ -f .last_success_date ]; then
             last_date=$(cat .last_success_date)
@@ -49,18 +61,19 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v3
 
-      - name: 随机延迟（早上）
+      - name: 随机延迟（早上自动调度）
         if: github.event.schedule == '0 1 * * *'
         run: |
           delay=$((RANDOM % 60))
           echo "早上签到，延迟 $delay 秒后开始.."
           sleep $delay
 
-      - name: 随机延迟（下午/手动触发）
-        if: github.event.schedule == '0 5 * * *' || github.event_name == 'workflow_dispatch'
+      - name: 随机延迟（下午/手动触发/代码提交）
+        # <--- 修改：在这里加入了 || github.event_name == 'push'
+        if: github.event.schedule == '0 5 * * *' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
         run: |
           delay=$((RANDOM % 30))
-          echo "下午兜底或手动触发，延迟 $delay 秒后开始.."
+          echo "下午兜底、手动触发或代码提交，延迟 $delay 秒后开始.."
           sleep $delay
 
       - name: 设置Python环境
