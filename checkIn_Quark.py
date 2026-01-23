@@ -112,6 +112,16 @@ def main():
     skipped = []  # [(user, reason)]
 
     session = requests.Session()
+    retries = Retry(
+        total=5,                # 最大重试次数
+        backoff_factor=1,       # 每次重试间隔 1s, 2s, 4s...
+        status_forcelist=[500, 502, 503, 504],
+        allowed_methods=["GET", "POST"] # 针对哪些请求重试
+    )
+    adapter = HTTPAdapter(max_retries=retries)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    
     session.headers.update({
         "User-Agent": UA,
         "Accept": "application/json, text/plain, */*",
