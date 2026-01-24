@@ -1,3 +1,4 @@
+# 原作者为那两个贡献者
 # ⭐️ 夸克网盘自动签到
 
 ![GitHub stars](https://img.shields.io/github/stars/Liu8Can/Quark_Auot_Check_In) ![GitHub forks](https://img.shields.io/github/forks/Liu8Can/Quark_Auot_Check_In) ![License](https://img.shields.io/github/license/Liu8Can/Quark_Auot_Check_In) ![Last Commit](https://img.shields.io/github/last-commit/Liu8Can/Quark_Auot_Check_In) ![GitHub Actions](https://github.com/Liu8Can/Quark_Auot_Check_In/actions/workflows/quark_signin.yml/badge.svg)
@@ -44,12 +45,16 @@
 1. 打开手机抓包工具，访问夸克网盘签到页。
 2. 找到接口 `https://drive-m.quark.cn/1/clouddrive/capacity/growth/info` 的请求信息。
 3. 复制请求中的参数：`kps`、`sign` 和 `vcode`。【初步测试发现这个 Key 的值有效期在两个月左右】
-4. 将参数整理为以下格式：
+4. 将参数整理为以下格式：（url 直接复制粘贴即可）
    ```
-   user=张三; kps=abcdefg; sign=hijklmn; vcode=111111111;
+   user=账号1;
+   url=https://drive-m.quark.cn/1/clouddrive/act/growth/reward?kps=xxx==&sign=xxxxxxx&vcode=11111
+
+   user=账号2;
+   url=https://drive-m.quark.cn/1/clouddrive/act/growth/reward?kps=xxx==&sign=xxxxxxx&vcode=22222
    ```
 
-   > `user` 字段为用户名，可随意填写。多个账户可用 **回车或 && 分隔**。
+   > `user` 字段为用户名，可随意填写。多个账户可用 **回车**。
    >
 
 #### 🔐 添加到 GitHub Secrets
